@@ -1,0 +1,33 @@
+[package]
+name = "epi-sign-backend"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = { version = "0.8.4", features = ["macros", "multipart"] }
+tokio = { version = "1.43.0", features = ["full"] }
+tower = "0.5.2"
+tower-http = { version = "0.6.2", features = ["trace", "fs", "cors"] }
+http = "1.2.0"
+
+tracing = { version = "0.1.41" }
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+
+serde = { version = "1.0.209", features = ["derive"] }
+serde_json = "1.0.127"
+diesel = { version = "2.2.10", features = [
+    "postgres",
+    "chrono",
+    "uuid",
+    "r2d2",
+] }
+jsonwebtoken = "9.3.1"
+ulid = { version = "1.2.1", features = ["serde", "postgres"] }
+utoipa = { version = "5.3.1", features = ["axum_extras", "ulid", "chrono"] }
+utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
+validator = { version = "0.20.0", features = ["derive"] }
+tower-cookies = "0.11.0"
+chrono = { version = "0.4.41", features = ["serde"] }
+sha2 = "0.10.9"
+dotenvy = "0.15.7"
+base64 = "0.22.1"

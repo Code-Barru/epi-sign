@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "epi-sign",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
