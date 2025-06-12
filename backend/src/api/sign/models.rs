@@ -53,7 +53,9 @@ impl CookieItem {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct SignPayload {
+    #[schema(value_type = Vec<String>, example = "[\"01F8MECHZX3TBDSZ7X4F5G9Z6H\", \"01F8MECHZX3TBDSZ7X4F5G9Z6I\"]")]
     pub ulids: Vec<Ulid>,
+    #[schema(value_type = String, example = "https://intra.epitech.eu/module/XXXX/X-XXX-000/XXX-0-0/acti-000000/event-000000/registered?token=00000000")]
     pub url: String,
 }
 

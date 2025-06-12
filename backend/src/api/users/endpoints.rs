@@ -1,10 +1,20 @@
-use axum::{extract::State, response::IntoResponse, Json};
-use chrono::{DateTime};
-use http::StatusCode;
+use axum::{Json, extract::State, response::IntoResponse};
 use base64::{Engine as _, engine::general_purpose};
+use chrono::DateTime;
+use http::StatusCode;
 use serde_json::Value;
 
-use crate::{api::{auth::JwtClaims, users::{get_user_by_username, models::JwtPayload, services::update_user_jwt, User}}, misc::GlobalState};
+use crate::{
+    api::{
+        auth::JwtClaims,
+        users::{
+            User, get_user_by_username,
+            models::{JwtPayload, PublicUserResponse},
+            services::{get_all_users, update_user_jwt},
+        },
+    },
+    misc::GlobalState,
+};
 
 #[utoipa::path(
     get,
@@ -20,7 +30,7 @@ use crate::{api::{auth::JwtClaims, users::{get_user_by_username, models::JwtPayl
 pub async fn get_me(State(state): State<GlobalState>, jwt: JwtClaims) -> impl IntoResponse {
     match get_user_by_username(&state, &jwt.name) {
         Ok(user) => Json(user).into_response(),
-        Err(_) => return (StatusCode::NOT_FOUND).into_response()
+        Err(_) => return (StatusCode::NOT_FOUND).into_response(),
     }
 }
 
@@ -36,9 +46,13 @@ pub async fn get_me(State(state): State<GlobalState>, jwt: JwtClaims) -> impl In
     ),
     tag = "Users"
 )]
-pub async fn update_jwt(State(state): State<GlobalState>, jwt_user: JwtClaims, Json(jwt_payload): Json<JwtPayload>) -> impl IntoResponse {
+pub async fn update_jwt(
+    State(state): State<GlobalState>,
+    jwt_user: JwtClaims,
+    Json(jwt_payload): Json<JwtPayload>,
+) -> impl IntoResponse {
     let parts: Vec<&str> = jwt_payload.jwt.split('.').collect();
-    
+
     if parts.len() != 3 {
         return (StatusCode::BAD_REQUEST, "Invalid JWT format").into_response();
     }
@@ -56,13 +70,26 @@ pub async fn update_jwt(State(state): State<GlobalState>, jwt_user: JwtClaims, J
     let exp = match exp {
         Some(exp) => match exp.as_i64() {
             Some(exp) => exp,
-            None => return (StatusCode::BAD_REQUEST, "Expiration time is not an integer").into_response(),
+            None => {
+                return (StatusCode::BAD_REQUEST, "Expiration time is not an integer")
+                    .into_response();
+            }
         },
-        None => return (StatusCode::BAD_REQUEST, "Expiration time not found in JWT payload").into_response(),
+        None => {
+            return (
+                StatusCode::BAD_REQUEST,
+                "Expiration time not found in JWT payload",
+            )
+                .into_response();
+        }
     };
 
     if exp <= 0 {
-        return (StatusCode::BAD_REQUEST, "Invalid expiration time in JWT payload").into_response();
+        return (
+            StatusCode::BAD_REQUEST,
+            "Invalid expiration time in JWT payload",
+        )
+            .into_response();
     }
 
     let exp_datetime = match DateTime::from_timestamp(exp, 0) {
@@ -70,7 +97,7 @@ pub async fn update_jwt(State(state): State<GlobalState>, jwt_user: JwtClaims, J
         None => return (StatusCode::BAD_REQUEST, "Invalid timestamp").into_response(),
     };
 
-    let exp_naive = exp_datetime.naive_utc();    
+    let exp_naive = exp_datetime.naive_utc();
 
     match update_user_jwt(&state, jwt_user.sub, &jwt_payload.jwt, exp_naive) {
         Ok(_) => (StatusCode::OK).into_response(),
@@ -78,4 +105,33 @@ pub async fn update_jwt(State(state): State<GlobalState>, jwt_user: JwtClaims, J
             return (StatusCode::INTERNAL_SERVER_ERROR).into_response();
         }
     }
+}
+
+#[utoipa::path(
+    get,
+    path = "/api/users",
+    description = "Get all users",
+    responses(
+        (status = 200, description = "Users retrieved successfully", body = Vec<PublicUserResponse>),
+        (status = 401 , description = "Unauthorized"),
+    ),
+    tag = "Users"
+)]
+pub async fn get_users(State(state): State<GlobalState>) -> impl IntoResponse {
+    let users = match get_all_users(&state) {
+        Ok(users) => users,
+        Err(_) => {
+            return (StatusCode::INTERNAL_SERVER_ERROR, "Error fetching users").into_response();
+        }
+    };
+
+    if users.is_empty() {
+        return (StatusCode::NOT_FOUND, "No users found").into_response();
+    }
+
+    let public_users: Vec<PublicUserResponse> = users
+        .into_iter()
+        .map(|user| PublicUserResponse::from(user))
+        .collect();
+    (StatusCode::OK, Json(public_users)).into_response()
 }

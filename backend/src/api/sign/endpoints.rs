@@ -21,6 +21,7 @@ use crate::{
     responses(
         (status = 200, description = "Cookies signed successfully", body = SignResponse),
         (status = 400, description = "No users found for the provided ULIDs"),
+        (status = 401, description = "Unauthorized - Invalid or missing JWT token"),
         (status = 404, description = "No cookies found for today"),
     ),
     tag = "Sign"
@@ -82,6 +83,7 @@ pub async fn sign(
     description = "Check the status of cookies for today",
     responses(
         (status = 200, description = "Cookies exist for today"),
+        (status = 401, description = "Unauthorized"),
         (status = 404, description = "No cookies found for today"),
     ),
     tag = "Sign"

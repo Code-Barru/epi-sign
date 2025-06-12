@@ -111,3 +111,30 @@ pub async fn login(
 
     (StatusCode::OK).into_response()
 }
+
+#[utoipa::path(
+    post,
+    path = "/api/auth/logout",
+    responses(
+        (status = 200, description = "Logged out successfully"),
+        (status = UNAUTHORIZED, description = "Invalid credentials"),
+    ),
+    security(
+        ("cookieAuth" = [])
+    ),
+    tag = "Auth",
+)]
+pub async fn logout(cookies: Cookies) -> impl IntoResponse {
+    let mut cookie = Cookie::new("auth", "");
+
+    #[cfg(not(debug_assertions))]
+    cookie.set_secure(true);
+    #[cfg(not(debug_assertions))]
+    cookie.set_same_site(SameSite::None);
+    cookie.set_expires(time::OffsetDateTime::UNIX_EPOCH);
+    cookie.set_path("/");
+    cookie.set_http_only(true);
+    cookies.add(cookie);
+
+    (StatusCode::OK).into_response()
+}

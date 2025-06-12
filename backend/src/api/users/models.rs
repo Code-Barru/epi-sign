@@ -20,6 +20,9 @@ pub struct User {
     #[serde(skip_serializing)]
     pub password_hash: String,
 
+    #[schema(
+        example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
+    )]
     pub jwt_intra_epitech: Option<String>,
     pub jwt_expires_at: Option<chrono::NaiveDateTime>,
 }
@@ -66,6 +69,25 @@ impl From<RegisterPayload> for User {
 
 #[derive(Serialize, Deserialize, ToSchema)]
 pub struct JwtPayload {
-    #[schema(example = "01F8MECHZX3TBDSZ7XK4F5G9ZQ")]
+    #[schema(
+        example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
+    )]
     pub jwt: String,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct PublicUserResponse {
+    #[schema(example = "01F8MECHZX3TBDSZ7XK4F5G9ZQ")]
+    pub id: String,
+    #[schema(example = "johndoe")]
+    pub username: String,
+}
+
+impl From<User> for PublicUserResponse {
+    fn from(user: User) -> Self {
+        Self {
+            id: user.id,
+            username: user.username,
+        }
+    }
 }

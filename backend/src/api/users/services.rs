@@ -10,6 +10,7 @@ use crate::{api::auth::RegisterPayload, misc::GlobalState};
 
 pub fn get_routes(state: GlobalState) -> Router {
     Router::new()
+        .route("/", get(super::endpoints::get_users))
         .route("/me", get(super::endpoints::get_me))
         .route("/me/update-jwt", post(super::endpoints::update_jwt))
         .with_state(state)
@@ -123,4 +124,16 @@ pub fn get_users_by_ulids(
         .filter(id.eq_any(user_id_strings))
         .select(User::as_select())
         .load(&mut conn)
+}
+
+pub fn get_all_users(state: &GlobalState) -> Result<Vec<User>, diesel::result::Error> {
+    use crate::schema::users::dsl::*;
+    use diesel::prelude::*;
+
+    let mut conn = match state.get_db_conn() {
+        Ok(conn) => conn,
+        Err(_) => return Err(diesel::result::Error::NotFound),
+    };
+
+    users.select(User::as_select()).load(&mut conn)
 }

@@ -2,7 +2,7 @@ use axum::{Router, routing::post};
 use sha2::{Digest, Sha256};
 
 use crate::{
-    api::auth::endpoints::{login, register},
+    api::auth::endpoints::{login, logout, register},
     misc::GlobalState,
 };
 
@@ -10,6 +10,7 @@ pub fn get_no_auth_routes(state: GlobalState) -> Router {
     Router::new()
         .route("/login", post(login))
         .route("/register", post(register))
+        .route("/logout", post(logout))
         .with_state(state)
 }
 
