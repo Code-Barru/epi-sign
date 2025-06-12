@@ -1,4 +1,7 @@
-use axum::{routing::{get, post}, Router};
+use axum::{
+    Router,
+    routing::{get, post},
+};
 use chrono::NaiveDateTime;
 use ulid::Ulid;
 
@@ -8,7 +11,7 @@ use crate::{api::auth::RegisterPayload, misc::GlobalState};
 pub fn get_routes(state: GlobalState) -> Router {
     Router::new()
         .route("/me", get(super::endpoints::get_me))
-        .route("/update-jwt", post(super::endpoints::update_jwt))
+        .route("/me/update-jwt", post(super::endpoints::update_jwt))
         .with_state(state)
 }
 
@@ -97,4 +100,27 @@ pub fn update_user_jwt(
         .execute(&mut conn)?;
 
     Ok(())
+}
+
+pub fn get_users_by_ulids(
+    state: &GlobalState,
+    user_ids: &Vec<Ulid>,
+) -> Result<Vec<User>, diesel::result::Error> {
+    use crate::schema::users::dsl::*;
+    use diesel::prelude::*;
+
+    let mut conn = match state.get_db_conn() {
+        Ok(conn) => conn,
+        Err(_) => return Err(diesel::result::Error::NotFound),
+    };
+
+    let user_id_strings: Vec<String> = user_ids
+        .iter()
+        .map(|other_id| other_id.to_string())
+        .collect();
+
+    users
+        .filter(id.eq_any(user_id_strings))
+        .select(User::as_select())
+        .load(&mut conn)
 }

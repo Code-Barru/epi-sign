@@ -1,0 +1,20 @@
+meta {
+  name: Sign
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/sign
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "ulids": [
+      "01JXG6SMAM6TJBQMV45WWWE25Q"
+    ],
+    "url": "https://intra.epitech.eu/module/2024/G-RES-000/LIL-0-1/acti-680413/event-625728/registered?token=72207916"
+  }
+}

@@ -26,7 +26,7 @@ pub async fn get_me(State(state): State<GlobalState>, jwt: JwtClaims) -> impl In
 
 #[utoipa::path(
     post,
-    path = "/api/users/update-jwt",
+    path = "/api/users/me/update-jwt",
     description = "Update the JWT for the current user",
     request_body = JwtPayload,
     responses(

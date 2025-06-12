@@ -1,6 +1,14 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    cookies (id) {
+        id -> Text,
+        date -> Date,
+        cookie_data -> Jsonb,
+    }
+}
+
+diesel::table! {
     users (id) {
         id -> Text,
         username -> Text,

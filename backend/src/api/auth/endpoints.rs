@@ -2,6 +2,8 @@ use axum::Json;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use http::StatusCode;
+#[cfg(not(debug_assertions))]
+use tower_cookies::cookie::SameSite;
 use tower_cookies::cookie::time;
 use tower_cookies::{Cookie, Cookies};
 use tracing::error;
@@ -79,7 +81,7 @@ pub async fn login(
         Ok(Some(user)) => user,
         Ok(None) => {
             return (StatusCode::UNAUTHORIZED).into_response();
-        },
+        }
         Err(e) => {
             error!("Failed to get user by username: {}", e);
             return (StatusCode::INTERNAL_SERVER_ERROR).into_response();

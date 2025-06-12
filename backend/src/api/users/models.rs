@@ -6,6 +6,7 @@ use utoipa::ToSchema;
 use crate::api::auth::hash_password;
 
 use crate::api::auth::RegisterPayload;
+use crate::api::sign::CookieItem;
 
 #[derive(Serialize, Deserialize, Queryable, Insertable, Selectable, ToSchema)]
 #[diesel(table_name = crate::schema::users)]
@@ -36,6 +37,24 @@ impl User {
 
     pub fn verify_password(&self, password: &str) -> bool {
         hash_password(password) == self.password_hash
+    }
+
+    pub fn get_jwt_as_cookie(&self) -> Option<CookieItem> {
+        let jwt = match &self.jwt_intra_epitech {
+            Some(jwt) => jwt,
+            None => return None,
+        };
+
+        Some(CookieItem {
+            name: "user".to_string(),
+            value: jwt.clone(),
+            domain: "intra.epitech.eu".to_string(),
+            path: "/".to_string(),
+            expires: self.jwt_expires_at.map(|dt| dt.and_utc().timestamp()),
+            http_only: true,
+            secure: true,
+            same_site: None,
+        })
     }
 }
 

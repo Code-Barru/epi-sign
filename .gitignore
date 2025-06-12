@@ -2,3 +2,6 @@ test/
 target/
 todo.md
 compose.yml
+node_modules/
+.env
+db_data/
