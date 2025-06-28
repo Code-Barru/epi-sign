@@ -1,0 +1,74 @@
+@import 'tailwindcss';
+
+@layer base {
+    /* Empêcher le zoom sur les inputs iOS */
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    input[type="number"],
+    textarea {
+        font-size: 16px !important;
+    }
+    
+    /* Améliorer le scrolling sur mobile */
+    body {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: none;
+    }
+}
+
+@layer components {
+    .gradient-text {
+        @apply bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent;
+    }
+    
+    .glass-effect {
+        @apply backdrop-blur-xl bg-white/10 border border-white/10;
+    }
+    
+    /* Input mobile-first avec hauteur minimale de 48px pour l'accessibilité */
+    .input-field {
+        @apply w-full min-h-[48px] px-4 py-3 bg-white/10 border border-white/20 rounded-xl 
+               text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
+               focus:bg-white/15 focus:ring-2 focus:ring-purple-500/20 transition-all
+               text-base;
+    }
+    
+    /* Boutons avec taille minimale de 48px pour les doigts */
+    .btn-primary {
+        @apply w-full min-h-[48px] px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 
+               text-white font-semibold rounded-xl active:scale-95
+               hover:shadow-lg hover:shadow-purple-500/25 
+               transition-all duration-200
+               disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
+               text-base sm:text-lg;
+    }
+    
+    .btn-secondary {
+        @apply min-h-[48px] px-6 py-3 bg-white/10 text-white font-medium rounded-xl 
+               active:scale-95 hover:bg-white/20 transition-all duration-200 
+               border border-white/20;
+    }
+    
+    .btn-danger {
+        @apply min-h-[44px] px-4 py-2.5 bg-red-500/10 text-red-400 font-medium rounded-xl 
+               active:scale-95 hover:bg-red-500/20 transition-all duration-200 
+               border border-red-500/30 text-sm;
+    }
+    
+    /* Checkbox plus grand pour mobile */
+    .checkbox-custom {
+        @apply w-6 h-6 rounded border-2 border-gray-600 text-purple-600 
+               focus:ring-purple-500 focus:ring-2 focus:ring-offset-0
+               focus:ring-offset-transparent;
+    }
+    
+    /* Safe area pour les appareils avec encoche */
+    .safe-top {
+        padding-top: env(safe-area-inset-top);
+    }
+    
+    .safe-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+} 

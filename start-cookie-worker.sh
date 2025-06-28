@@ -18,4 +18,3 @@ echo "Starting cookie-worker container..."
 docker run --rm cookie-worker
 
 echo "Cookie-worker execution completed."
-read -p "Press Enter to continue..."

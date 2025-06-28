@@ -33,7 +33,16 @@ services:
       db:
         condition: service_healthy
         restart: true
+    networks:
+      - epi-sign
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: epi-sign-frontend
+    ports:
+      - "8081:80"
     networks:
       - epi-sign
 

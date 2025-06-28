@@ -76,11 +76,14 @@ pub struct JwtPayload {
 }
 
 #[derive(Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct PublicUserResponse {
     #[schema(example = "01F8MECHZX3TBDSZ7XK4F5G9ZQ")]
     pub id: String,
     #[schema(example = "johndoe")]
     pub username: String,
+    #[schema(example = "2023-10-01T12:00:00")]
+    pub jwt_expires_at: Option<chrono::NaiveDateTime>,
 }
 
 impl From<User> for PublicUserResponse {
@@ -88,6 +91,7 @@ impl From<User> for PublicUserResponse {
         Self {
             id: user.id,
             username: user.username,
+            jwt_expires_at: user.jwt_expires_at,
         }
     }
 }

@@ -33,9 +33,12 @@ pub fn get_router() -> Router {
         .merge(SwaggerUi::new("/api/docs").url("/api/docs/openapi.json", Swagger::openapi()))
         .layer(
             cors::CorsLayer::new()
-                .allow_origin(cors::Any)
-                .allow_methods(cors::Any)
-                .allow_headers(cors::Any),
+                .allow_origin([axum::http::HeaderValue::from_static(
+                    "http://localhost:5173",
+                )]) // or use .allow_origin(AllowOrigin::same_origin()) if you want only same-origin
+                .allow_methods(vec![axum::http::Method::GET, axum::http::Method::POST])
+                .allow_headers([axum::http::header::CONTENT_TYPE, axum::http::header::ACCEPT])
+                .allow_credentials(true),
         )
 }
 
