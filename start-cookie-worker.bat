@@ -17,4 +17,4 @@ if %errorlevel% neq 0 (
 )
 
 echo Starting cookie-worker container...
-docker run --rm cookie-worker --network epi-sign
+docker run --rm --network epi-sign cookie-worker 

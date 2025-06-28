@@ -15,6 +15,6 @@ else
 fi
 
 echo "Starting cookie-worker container..."
-docker run --rm cookie-worker
+docker run --rm --network epi-sign cookie-worker
 
 echo "Cookie-worker execution completed."
