@@ -4,6 +4,7 @@
   import { scale, fly } from "svelte/transition";
   import { quintOut } from "svelte/easing";
   import { currentUser } from "$lib/stores";
+  import { Braces, Check, X } from "@lucide/svelte";
 
   export let user: PublicUserResponse;
   export let isSelected: boolean;
@@ -86,7 +87,15 @@
           : 'bg-green-500/20 text-green-400 border-green-500/30'}"
         in:scale={{ duration: 200, delay: 100, easing: quintOut }}
       >
-        {user.jwtIsExpired ? "JWT expiré" : "JWT valide"}
+        <span class="hidden sm:inline"
+          >{user.jwtIsExpired ? "JWT expiré" : "JWT valide"}</span
+        >
+        <span class="sm:hidden flex flex-row">
+          <Braces size="18" class=" mr-1" />
+          {#if user.jwtIsExpired}<X size="18" />{:else}<Check
+              size="18"
+            />{/if}</span
+        >
       </span>
     </div>
   </div>
