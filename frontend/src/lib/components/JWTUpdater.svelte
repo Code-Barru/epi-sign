@@ -85,12 +85,13 @@
     out:fade={{ duration: 200, easing: quintOut }}
   >
     <!-- Backdrop -->
-    <div
+    <button
       class="absolute inset-0 bg-black/50 backdrop-blur-sm"
       on:click={handleClose}
       in:fade={{ duration: 300 }}
       out:fade={{ duration: 200 }}
-    ></div>
+      aria-label="Fermer le modal"
+    ></button>
 
     <!-- Modal -->
     <div

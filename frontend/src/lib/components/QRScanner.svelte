@@ -4,7 +4,6 @@
   import { TriangleAlert, X } from "@lucide/svelte";
 
   export let onScan: (result: string) => void;
-  export let onError: (error: string) => void = () => {};
   export let onClose: () => void;
 
   let scanner: Html5Qrcode | null = null;

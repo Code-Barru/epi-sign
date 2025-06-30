@@ -188,10 +188,6 @@
 
 <div class="min-h-screen pb-safe">
   <div class="p-4 sm:p-6 max-w-7xl mx-auto">
-    <h2 class="text-2xl sm:text-3xl font-bold mb-6 gradient-text">
-      Signatures du jour
-    </h2>
-
     {#if error}
       <AlertMessage type="error" message={error} />
     {/if}
