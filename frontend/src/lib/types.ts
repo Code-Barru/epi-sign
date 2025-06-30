@@ -35,6 +35,11 @@ export type SignResponse =
     | 'unknownError'
     | 'serviceUnavailable';
 
+export interface UserSignResponse {
+    response: SignResponse,
+    ulid: string
+}
+
 export interface JwtPayload {
     jwt: string;
 }
@@ -42,4 +47,10 @@ export interface JwtPayload {
 export interface ApiError {
     status: number;
     message: string;
+}
+
+export interface UpdateUserPayload {
+    username?: string | null;
+    old_password?: string | null;
+    new_password?: string | null;
 }

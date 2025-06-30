@@ -3,11 +3,17 @@
   import { loadUsers, signUsers, checkAuth } from "$lib/api";
   import { goto } from "$app/navigation";
   import { isMobileDevice } from "$lib/utils/device";
-  import type { PublicUserResponse, ApiError } from "$lib/types";
+  import type {
+    PublicUserResponse,
+    ApiError,
+    UserSignResponse,
+  } from "$lib/types";
   import AlertMessage from "$lib/components/AlertMessage.svelte";
   import SigningSection from "$lib/components/SigningSection.svelte";
   import UsersList from "$lib/components/UsersList.svelte";
   import QRScanner from "$lib/components/QRScanner.svelte";
+  import SignResults from "$lib/components/SignResults.svelte";
+  import { currentUser } from "$lib/stores";
 
   let users: PublicUserResponse[] = [];
   let selectedUsers = new Set<string>();
@@ -19,6 +25,8 @@
   let selectAll: boolean = false;
   let showScanner: boolean = false;
   let isMobile: boolean = false;
+  let showResults: boolean = false;
+  let signResults: UserSignResponse[] = [];
 
   onMount(async () => {
     // Vérifier si on est sur mobile
@@ -34,7 +42,36 @@
 
     loading = true;
     try {
-      users = await loadUsers();
+      const loadedUsers = await loadUsers();
+
+      // Marquer les utilisateurs avec JWT expiré
+      loadedUsers.forEach((user) => {
+        user.jwtIsExpired =
+          user.jwtExpiresAt === undefined ||
+          user.jwtExpiresAt === null ||
+          new Date(user.jwtExpiresAt) < new Date();
+      });
+
+      // Trier les utilisateurs :
+      // 1. Utilisateur actuel en premier
+      // 2. Par validité de token (valides avant expirés)
+      // 3. Par ULID
+      users = loadedUsers.sort((a, b) => {
+        // 1. Utilisateur actuel en premier
+        const aIsCurrent = $currentUser?.id === a.id;
+        const bIsCurrent = $currentUser?.id === b.id;
+
+        if (aIsCurrent && !bIsCurrent) return -1;
+        if (!aIsCurrent && bIsCurrent) return 1;
+
+        // 2. Trier par validité de token (valides en premier)
+        if (a.jwtIsExpired !== b.jwtIsExpired) {
+          return a.jwtIsExpired ? 1 : -1;
+        }
+
+        // 3. Trier par ULID
+        return a.id.localeCompare(b.id);
+      });
     } catch (e) {
       const apiError = e as ApiError;
       if (apiError.status === 401) {
@@ -50,6 +87,8 @@
   async function handleSign(): Promise<void> {
     error = "";
     success = "";
+    showResults = false;
+    signResults = [];
 
     if (selectedUsers.size === 0) {
       error = "Sélectionnez au moins un utilisateur";
@@ -63,9 +102,17 @@
 
     signing = true;
     try {
-      const result = await signUsers(Array.from(selectedUsers), signUrl);
-      console.log("Résultat de la signature :", result);
-      success = `Signature réussie : ${result}`;
+      const selectedUserIds = Array.from(selectedUsers);
+
+      // L'API retourne maintenant directement un array de UserSignResponse
+      const response = await signUsers(selectedUserIds, signUrl);
+
+      // Response est déjà au bon format : UserSignResponse[]
+      signResults = response;
+
+      showResults = true;
+
+      // Réinitialiser la sélection
       selectedUsers = new Set();
       selectAll = false;
       signUrl = "";
@@ -91,16 +138,25 @@
       selectedUsers.add(userId);
     }
     selectedUsers = selectedUsers;
-    selectAll = selectedUsers.size === users.length;
+
+    // Mettre à jour selectAll en fonction de la sélection
+    const availableUsers = users.filter((u) => !u.jwtIsExpired);
+    selectAll =
+      selectedUsers.size === availableUsers.length && availableUsers.length > 0;
   }
 
   function handleToggleSelectAll(): void {
+    const availableUsers = users.filter((u) => !u.jwtIsExpired);
+
     if (selectAll) {
+      // Désélectionner tous
       selectedUsers = new Set();
+      selectAll = false;
     } else {
-      selectedUsers = new Set(users.map((u) => u.id));
+      // Sélectionner tous les utilisateurs disponibles
+      selectedUsers = new Set(availableUsers.map((u) => u.id));
+      selectAll = true;
     }
-    selectAll = !selectAll;
   }
 
   function handleUrlChange(event: CustomEvent<string>): void {
@@ -124,6 +180,10 @@
   function handleScanError(errorMsg: string): void {
     error = errorMsg;
   }
+
+  function handleCloseResults() {
+    showResults = false;
+  }
 </script>
 
 <div class="min-h-screen pb-safe">
@@ -144,9 +204,7 @@
       {signUrl}
       {selectedUsers}
       {signing}
-      {selectAll}
       {isMobile}
-      usersCount={users.length}
       on:sign={handleSign}
       on:toggleSelectAll={handleToggleSelectAll}
       on:urlChange={handleUrlChange}
@@ -170,3 +228,10 @@
     onClose={() => (showScanner = false)}
   />
 {/if}
+
+<SignResults
+  isOpen={showResults}
+  results={signResults}
+  {users}
+  on:close={handleCloseResults}
+/>

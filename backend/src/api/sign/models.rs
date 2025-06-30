@@ -75,4 +75,5 @@ pub enum SignResponse {
     AlreadySigned,
     UnknownError,
     ServiceUnavailable,
+    BadToken,
 }

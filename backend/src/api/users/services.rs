@@ -1,6 +1,6 @@
 use axum::{
     Router,
-    routing::{get, post},
+    routing::{get, patch, post},
 };
 use chrono::NaiveDateTime;
 use ulid::Ulid;
@@ -12,6 +12,7 @@ pub fn get_routes(state: GlobalState) -> Router {
     Router::new()
         .route("/", get(super::endpoints::get_users))
         .route("/me", get(super::endpoints::get_me))
+        .route("/me", patch(super::endpoints::update_user))
         .route("/me/update-jwt", post(super::endpoints::update_jwt))
         .with_state(state)
 }
@@ -79,6 +80,25 @@ pub fn get_user_by_username(
         .optional()
 }
 
+pub fn get_user_by_id(
+    state: &GlobalState,
+    user_id: &Ulid,
+) -> Result<Option<User>, diesel::result::Error> {
+    use crate::schema::users::dsl::*;
+    use diesel::prelude::*;
+
+    let mut conn = match state.get_db_conn() {
+        Ok(conn) => conn,
+        Err(_) => return Err(diesel::result::Error::NotFound),
+    };
+
+    users
+        .filter(id.eq(user_id.to_string()))
+        .select(User::as_select())
+        .first(&mut conn)
+        .optional()
+}
+
 pub fn update_user_jwt(
     state: &GlobalState,
     user_id: Ulid,
@@ -136,4 +156,25 @@ pub fn get_all_users(state: &GlobalState) -> Result<Vec<User>, diesel::result::E
     };
 
     users.select(User::as_select()).load(&mut conn)
+}
+
+pub fn update_user(state: &GlobalState, user: &User) -> Result<(), diesel::result::Error> {
+    use crate::schema::users::dsl::*;
+    use diesel::prelude::*;
+
+    let mut conn = match state.get_db_conn() {
+        Ok(conn) => conn,
+        Err(_) => return Err(diesel::result::Error::NotFound),
+    };
+
+    diesel::update(users.filter(id.eq(&user.id)))
+        .set((
+            username.eq(&user.username),
+            password_hash.eq(&user.password_hash),
+            jwt_intra_epitech.eq(&user.jwt_intra_epitech),
+            jwt_expires_at.eq(&user.jwt_expires_at),
+        ))
+        .execute(&mut conn)?;
+
+    Ok(())
 }

@@ -117,7 +117,9 @@ pub async fn sign_fn(
             .json(&payload)
             .send()
             .await;
-
+            
+        println!("{:?}", &response);
+        
         let status = match response {
             Ok(resp) => resp.status(),
             Err(e) => {

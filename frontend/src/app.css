@@ -15,52 +15,183 @@
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: none;
     }
+
+    /* Animation globale pour les éléments interactifs */
+    * {
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
 }
 
 @layer components {
     .gradient-text {
         @apply bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent;
+        animation: gradient-shift 3s ease-in-out infinite;
     }
     
+    /* Glass effect pour desktop seulement */
     .glass-effect {
-        @apply backdrop-blur-xl bg-white/10 border border-white/10;
+        @apply bg-gray-900/90 border border-gray-700/50 sm:backdrop-blur-xl sm:bg-white/10 sm:border-white/10;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .glass-effect:hover {
+        @apply sm:bg-white/15 sm:border-white/20;
+        transform: translateY(-2px);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 
+                    0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Glass effect sans hover pour la navbar */
+    .glass-effect-navbar {
+        @apply bg-gray-900/95 border-gray-700/50 sm:backdrop-blur-xl sm:bg-white/10 sm:border-white/10;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Variante pour les modales - plus opaque sur mobile */
+    .glass-effect-modal {
+        @apply bg-gray-900/95 border border-gray-700/50 sm:backdrop-blur-2xl sm:bg-white/10 sm:border-white/20;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Variante pour les dropdowns - couleur sombre sur mobile */
+    .glass-effect-dropdown {
+        @apply bg-gray-800/95 border border-gray-700/50 sm:backdrop-blur-2xl sm:bg-white/10 sm:border-white/20;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Variante pour les cartes - plus subtile sur mobile */
+    .glass-effect-card {
+        @apply bg-gray-800/80 border border-gray-700/30 sm:backdrop-blur-xl sm:bg-white/10 sm:border-white/10;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-effect-card:hover {
+        @apply bg-gray-800/90 border-gray-600/50 sm:bg-white/15 sm:border-white/20;
+        transform: translateY(-2px);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 
+                    0 0 0 1px rgba(255, 255, 255, 0.1);
     }
     
     /* Input mobile-first avec hauteur minimale de 48px pour l'accessibilité */
     .input-field {
-        @apply w-full min-h-[48px] px-4 py-3 bg-white/10 border border-white/20 rounded-xl 
+        @apply w-full min-h-[48px] px-4 py-3 bg-gray-800/80 border border-gray-600/50 rounded-xl 
                text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 
-               focus:bg-white/15 focus:ring-2 focus:ring-purple-500/20 transition-all
-               text-base;
+               focus:bg-gray-800/90 focus:ring-2 focus:ring-purple-500/20 
+               text-base sm:bg-white/10 sm:border-white/20 sm:focus:bg-white/15;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .input-field:hover {
+        @apply border-gray-500/70 bg-gray-800/90 sm:border-white/30 sm:bg-white/12;
+        transform: translateY(-1px);
+    }
+
+    .input-field:focus {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.3),
+                    0 0 0 1px rgba(139, 92, 246, 0.5);
     }
     
     /* Boutons avec taille minimale de 48px pour les doigts */
     .btn-primary {
         @apply w-full min-h-[48px] px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 
-               text-white font-semibold rounded-xl active:scale-95
+               text-white font-semibold rounded-xl
                hover:shadow-lg hover:shadow-purple-500/25 
-               transition-all duration-200
-               disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
+               disabled:opacity-50 disabled:cursor-not-allowed
                text-base sm:text-lg;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
     }
+    .btn-primary:not(:disabled):active {
+        transform: translateY(-1px) scale(1.02);
+        transition-duration: 0.1s;
+    }
+
+    /* Effet de brillance sur les boutons */
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.6s ease-in-out;
+    }
+
     
     .btn-secondary {
-        @apply min-h-[48px] px-6 py-3 bg-white/10 text-white font-medium rounded-xl 
-               active:scale-95 hover:bg-white/20 transition-all duration-200 
-               border border-white/20;
+        @apply min-h-[48px] px-6 py-3 bg-gray-700/80 text-white font-medium rounded-xl 
+               hover:bg-gray-700/90 border border-gray-600/50 sm:bg-white/10 sm:hover:bg-white/20 sm:border-white/20;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-secondary:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 10px 15px -3px rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:active {
+        transform: translateY(-1px) scale(1.02);
+        transition-duration: 0.1s;
     }
     
     .btn-danger {
         @apply min-h-[44px] px-4 py-2.5 bg-red-500/10 text-red-400 font-medium rounded-xl 
-               active:scale-95 hover:bg-red-500/20 transition-all duration-200 
-               border border-red-500/30 text-sm;
+               hover:bg-red-500/20 border border-red-500/30 text-sm;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-1px) scale(1.03);
+        box-shadow: 0 8px 12px -3px rgba(239, 68, 68, 0.3);
     }
     
     /* Checkbox plus grand pour mobile */
     .checkbox-custom {
-        @apply w-6 h-6 rounded border-2 border-gray-600 text-purple-600 
+        @apply w-6 h-6 rounded border-2 border-gray-600 
                focus:ring-purple-500 focus:ring-2 focus:ring-offset-0
                focus:ring-offset-transparent;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        accent-color: #a855f7; /* Purple-500 */
+        background-color: transparent;
+        appearance: none;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .checkbox-custom:hover {
+        transform: scale(1.1);
+        @apply border-purple-500;
+    }
+
+    .checkbox-custom:checked {
+        @apply bg-purple-500 border-purple-500;
+        transform: scale(1.05);
+        animation: checkbox-bounce 0.3s ease-in-out;
+    }
+
+    /* Custom checkmark */
+    .checkbox-custom:checked::before {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        line-height: 1;
+    }
+
+    .checkbox-custom:disabled {
+        @apply opacity-50 cursor-not-allowed;
+    }
+
+    .checkbox-custom:disabled:hover {
+        transform: none;
+        @apply border-gray-600;
     }
     
     /* Safe area pour les appareils avec encoche */
@@ -71,4 +202,116 @@
     .safe-bottom {
         padding-bottom: env(safe-area-inset-bottom);
     }
-} 
+
+    /* Classes utilitaires pour les breakpoints glass-effect */
+    .mobile-dark {
+        @apply bg-gray-900/95 border-gray-700/50;
+    }
+
+    .mobile-dark-light {
+        @apply bg-gray-800/90 border-gray-600/50;
+    }
+
+    .mobile-dark-card {
+        @apply bg-gray-800/80 border-gray-700/30;
+    }
+
+    /* Animations personnalisées */
+    @keyframes gradient-shift {
+        0%, 100% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+    }
+
+    @keyframes checkbox-bounce {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1.05); }
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% {
+            box-shadow: 0 0 5px rgba(139, 92, 246, 0.3);
+        }
+        50% {
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+        }
+    }
+
+    /* Amélioration des cartes utilisateur */
+    .user-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .user-card:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2),
+                    0 10px 10px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Animations d'apparition */
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .animate-slide-up {
+        animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .animate-scale-in {
+        animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes scaleIn {
+        from {
+            transform: scale(0.95);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Amélioration des spinners */
+    .animate-spin {
+        animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    /* Effet de hover pour les éléments cliquables */
+    .clickable-hover {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .clickable-hover:hover {
+        transform: translateY(-1px) scale(1.02);
+    }
+
+    .clickable-hover:active {
+        transform: translateY(0) scale(0.98);
+        transition-duration: 0.1s;
+    }
+}

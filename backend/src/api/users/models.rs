@@ -95,3 +95,9 @@ impl From<User> for PublicUserResponse {
         }
     }
 }
+#[derive(Deserialize, ToSchema, Debug)]
+pub struct UpdateUserPayload {
+    pub username: Option<String>,
+    pub old_password: Option<String>,
+    pub new_password: Option<String>,
+}

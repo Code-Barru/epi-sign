@@ -6,10 +6,10 @@ use serde_json::Value;
 
 use crate::{
     api::{
-        auth::JwtClaims,
+        auth::{JwtClaims, hash_password},
         users::{
-            User, get_user_by_username,
-            models::{JwtPayload, PublicUserResponse},
+            User, get_user_by_id, get_user_by_username,
+            models::{JwtPayload, PublicUserResponse, UpdateUserPayload},
             services::{get_all_users, update_user_jwt},
         },
     },
@@ -28,9 +28,9 @@ use crate::{
     tag = "Users"
 )]
 pub async fn get_me(State(state): State<GlobalState>, jwt: JwtClaims) -> impl IntoResponse {
-    match get_user_by_username(&state, &jwt.name) {
+    match get_user_by_id(&state, &jwt.sub) {
         Ok(user) => Json(user).into_response(),
-        Err(_) => return (StatusCode::NOT_FOUND).into_response(),
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Error fetching user").into_response(),
     }
 }
 
@@ -134,4 +134,62 @@ pub async fn get_users(State(state): State<GlobalState>) -> impl IntoResponse {
         .map(|user| PublicUserResponse::from(user))
         .collect();
     (StatusCode::OK, Json(public_users)).into_response()
+}
+
+#[utoipa::path(
+    patch,
+    path = "/api/users/me",
+    description = "Update the current user's information",
+    request_body = UpdateUserPayload,
+    responses(
+        (status = 200, description = "User updated successfully"),
+        (status = 400, description = "Bad request - Invalid payload"),
+        (status = 401, description = "Unauthorized - Invalid or missing JWT token"),
+        (status = 404, description = "User not found"),
+    ),
+    tag = "Users"
+)]
+pub async fn update_user(
+    State(state): State<GlobalState>,
+    jwt_user: JwtClaims,
+    Json(payload): Json<UpdateUserPayload>,
+) -> impl IntoResponse {
+    let mut user = match get_user_by_id(&state, &jwt_user.sub) {
+        Ok(Some(user)) => user,
+        Ok(None) => return (StatusCode::NOT_FOUND, "User not found").into_response(),
+        Err(_) => return (StatusCode::NOT_FOUND, "User not found").into_response(),
+    };
+
+    if let Some(newpassword) = payload.new_password {
+        if let Some(old_password) = payload.old_password {
+            if !user.verify_password(&old_password) {
+                return (StatusCode::UNAUTHORIZED, "Old password is incorrect").into_response();
+            }
+            user.password_hash = hash_password(&newpassword);
+        } else {
+            return (StatusCode::BAD_REQUEST, "Old password is required").into_response();
+        }
+    }
+
+    if let Some(new_username) = payload.username {
+        if new_username.is_empty() {
+            return (StatusCode::BAD_REQUEST, "Username cannot be empty").into_response();
+        }
+        user.username = new_username;
+        match get_user_by_username(&state, &user.username) {
+            Ok(Some(existing_user)) if existing_user.id != user.id => {
+                return (StatusCode::CONFLICT, "Username already exists").into_response();
+            }
+            Ok(_) => {}
+            Err(_) => {
+                return (StatusCode::INTERNAL_SERVER_ERROR, "Error checking username")
+                    .into_response();
+            }
+        }
+    }
+
+    match super::services::update_user(&state, &user) {
+        Ok(_) => (StatusCode::OK, Json(user)).into_response(),
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Error updating user").into_response(),
+    }
 }

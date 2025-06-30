@@ -50,7 +50,7 @@
       Signatures automatisées pour l'intra d'Epitech
     </p>
 
-    <div class="glass-effect rounded-2xl p-6 sm:p-8 shadow-2xl">
+    <div class="glass-effect-modal rounded-2xl p-6 sm:p-8 shadow-2xl">
       <h2 class="text-2xl font-bold text-center mb-6">Connexion</h2>
 
       {#if error}

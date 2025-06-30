@@ -2,6 +2,8 @@
   import { createEventDispatcher } from "svelte";
   import { updateUserJWT } from "$lib/api";
   import type { ApiError } from "$lib/types";
+  import { fly, fade, scale } from "svelte/transition";
+  import { quintOut } from "svelte/easing";
 
   export let isOpen: boolean = false;
 
@@ -77,19 +79,40 @@
 <svelte:window on:keydown={handleKeydown} />
 
 {#if isOpen}
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    in:fade={{ duration: 300, easing: quintOut }}
+    out:fade={{ duration: 200, easing: quintOut }}
+  >
     <!-- Backdrop -->
     <div
       class="absolute inset-0 bg-black/50 backdrop-blur-sm"
       on:click={handleClose}
+      in:fade={{ duration: 300 }}
+      out:fade={{ duration: 200 }}
     ></div>
 
     <!-- Modal -->
     <div
       class="relative w-full max-w-lg glass-effect rounded-2xl p-6 sm:p-8 shadow-2xl"
+      in:scale={{
+        duration: 400,
+        easing: quintOut,
+        start: 0.9,
+        opacity: 0,
+      }}
+      out:scale={{
+        duration: 200,
+        easing: quintOut,
+        start: 0.95,
+        opacity: 0,
+      }}
     >
       <!-- Header -->
-      <div class="flex justify-between items-start mb-6">
+      <div
+        class="flex justify-between items-start mb-6"
+        in:fly={{ y: -20, duration: 400, delay: 100, easing: quintOut }}
+      >
         <div>
           <h2 class="text-2xl font-bold gradient-text">Mettre à jour le JWT</h2>
           <p class="text-sm text-gray-400 mt-2">
@@ -98,7 +121,7 @@
         </div>
         <button
           on:click={handleClose}
-          class="p-2 rounded-lg hover:bg-white/10 transition-colors"
+          class="p-2 rounded-lg hover:bg-white/10 transition-all duration-200 ease-out transform hover:scale-110 active:scale-95 hover:rotate-90"
           aria-label="Fermer"
         >
           <svg
@@ -121,6 +144,8 @@
       {#if error}
         <div
           class="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 text-sm"
+          in:fly={{ x: -50, duration: 300, easing: quintOut }}
+          out:fly={{ x: 50, duration: 200, easing: quintOut }}
         >
           ❌ {error}
         </div>
@@ -129,14 +154,22 @@
       {#if success}
         <div
           class="mb-6 p-4 bg-green-500/10 border border-green-500/50 rounded-xl text-green-400 text-sm"
+          in:scale={{ duration: 400, easing: quintOut }}
+          out:scale={{ duration: 200, easing: quintOut }}
         >
           ✅ JWT mis à jour avec succès !
         </div>
       {/if}
 
       <!-- Form -->
-      <form on:submit|preventDefault={handleSubmit} class="space-y-6">
-        <div>
+      <form
+        on:submit|preventDefault={handleSubmit}
+        class="space-y-6"
+        in:fly={{ y: 20, duration: 400, delay: 200, easing: quintOut }}
+      >
+        <div
+          class="transform transition-all duration-200 ease-out hover:scale-[1.02]"
+        >
           <label for="jwt" class="block text-sm font-medium text-gray-300 mb-2">
             Token JWT
           </label>
@@ -147,7 +180,7 @@
               rows="4"
               disabled={loading || success}
               placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-              class="input-field resize-none font-mono text-sm pr-12"
+              class="input-field resize-none font-mono text-sm pr-12 transition-all duration-200 ease-out focus:scale-[1.02]"
               style="word-break: break-all; {showPassword
                 ? ''
                 : '-webkit-text-security: disc; text-security: disc;'}"
@@ -155,15 +188,16 @@
             <button
               type="button"
               on:click={togglePasswordVisibility}
-              class="absolute right-3 top-3 p-2 rounded-lg hover:bg-white/10 transition-colors"
+              class="absolute right-3 top-3 p-2 rounded-lg hover:bg-white/10 transition-all duration-200 ease-out transform hover:scale-110 active:scale-95"
               aria-label={showPassword ? "Masquer" : "Afficher"}
             >
               {#if showPassword}
                 <svg
-                  class="w-5 h-5 text-gray-400"
+                  class="w-5 h-5 text-gray-400 transition-transform duration-300 ease-out"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  in:scale={{ duration: 200 }}
                 >
                   <path
                     stroke-linecap="round"
@@ -174,10 +208,11 @@
                 </svg>
               {:else}
                 <svg
-                  class="w-5 h-5 text-gray-400"
+                  class="w-5 h-5 text-gray-400 transition-transform duration-300 ease-out"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  in:scale={{ duration: 200 }}
                 >
                   <path
                     stroke-linecap="round"
@@ -201,26 +236,32 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex gap-3">
+        <div
+          class="flex gap-3"
+          in:fly={{ y: 20, duration: 300, delay: 300, easing: quintOut }}
+        >
           <button
             type="button"
             on:click={handleClose}
             disabled={loading}
-            class="btn-secondary flex-1"
+            class="btn-secondary flex-1 transform transition-all duration-200 ease-out hover:scale-105 active:scale-95"
           >
             Annuler
           </button>
           <button
             type="submit"
             disabled={loading || success}
-            class="btn-primary flex-1"
+            class="btn-primary flex-1 transform transition-all duration-200 ease-out hover:scale-105 active:scale-95"
           >
             {#if loading}
               <span
                 class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"
+                in:scale={{ duration: 300 }}
               ></span>
             {:else if success}
-              Mis à jour !
+              <span in:scale={{ duration: 300, easing: quintOut }}
+                >Mis à jour !</span
+              >
             {:else}
               Mettre à jour
             {/if}
@@ -229,19 +270,46 @@
       </form>
 
       <!-- Help -->
-      <div class="mt-6 text-center">
-        <details class="text-sm text-gray-400">
-          <summary class="cursor-pointer hover:text-gray-300 transition-colors">
+      <div class="mt-6 text-center" in:fade={{ delay: 400, duration: 300 }}>
+        <details
+          class="text-sm text-gray-400 transform transition-all duration-200 ease-out hover:scale-[1.02]"
+        >
+          <summary
+            class="cursor-pointer hover:text-gray-300 transition-colors duration-200 ease-out"
+          >
             Comment obtenir mon JWT ?
           </summary>
-          <div class="mt-3 text-left space-y-2 bg-white/5 rounded-xl p-4">
+          <div
+            class="mt-3 text-left space-y-2 bg-white/5 rounded-xl p-4"
+            in:fly={{ y: 10, duration: 300, easing: quintOut }}
+          >
             <p class="font-semibold">Sur Chrome/Edge :</p>
             <ol class="space-y-1 text-xs">
-              <li>1. Connectez-vous à l'Intranet Epitech</li>
-              <li>2. Ouvrez les DevTools (F12)</li>
-              <li>3. Allez dans l'onglet "Application" ou "Storage"</li>
-              <li>4. Dans "Cookies" → trouvez "user"</li>
-              <li>5. Copiez la valeur complète</li>
+              <li
+                class="transform transition-all duration-200 ease-out hover:scale-[1.02]"
+              >
+                1. Connectez-vous à l'Intranet Epitech
+              </li>
+              <li
+                class="transform transition-all duration-200 ease-out hover:scale-[1.02]"
+              >
+                2. Ouvrez les DevTools (F12)
+              </li>
+              <li
+                class="transform transition-all duration-200 ease-out hover:scale-[1.02]"
+              >
+                3. Allez dans l'onglet "Application" ou "Storage"
+              </li>
+              <li
+                class="transform transition-all duration-200 ease-out hover:scale-[1.02]"
+              >
+                4. Dans "Cookies" → trouvez "user"
+              </li>
+              <li
+                class="transform transition-all duration-200 ease-out hover:scale-[1.02]"
+              >
+                5. Copiez la valeur complète
+              </li>
             </ol>
           </div>
         </details>

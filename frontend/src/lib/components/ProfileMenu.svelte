@@ -4,6 +4,9 @@
   import { logout } from "$lib/api";
   import { goto } from "$app/navigation";
   import { clickOutside } from "$lib/actions/clickOutside";
+  import { User } from "@lucide/svelte";
+  import { fly, fade } from "svelte/transition";
+  import { quintOut } from "svelte/easing";
 
   export let isMobile: boolean = false;
 
@@ -42,6 +45,11 @@
     dispatch("updateJWT");
   }
 
+  function handleUpdateProfile() {
+    closeMenu();
+    dispatch("updateProfile");
+  }
+
   function getJWTStatusConfig() {
     switch (jwtStatus) {
       case "valid":
@@ -75,20 +83,24 @@
   <!-- Trigger Button -->
   <button
     on:click={toggleMenu}
-    class="flex items-center gap-2 p-2 rounded-xl hover:bg-white/10 transition-colors"
+    class="flex items-center gap-2 p-2 rounded-xl hover:bg-white/10 transition-all duration-200 ease-out {isOpen
+      ? 'bg-white/10 scale-95'
+      : ''}"
     aria-expanded={isOpen}
     aria-haspopup="menu"
   >
     <!-- Avatar/Initial -->
     <div
-      class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-sm font-bold"
+      class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-sm font-bold transition-transform duration-200 ease-out {isOpen
+        ? 'scale-110'
+        : ''}"
     >
       {$currentUser?.username?.charAt(0).toUpperCase() || "?"}
     </div>
 
     <!-- Username (desktop only) -->
     {#if !isMobile}
-      <span class="text-sm font-medium"
+      <span class="text-sm font-medium transition-colors duration-200 ease-out"
         >{$currentUser?.username || "Utilisateur"}</span
       >
     {/if}
@@ -98,13 +110,15 @@
       <div
         class="w-2 h-2 rounded-full {statusConfig.needsUpdate
           ? 'bg-red-500'
-          : 'bg-green-500'} animate-pulse"
+          : 'bg-green-500'} animate-pulse transition-all duration-200 ease-out"
       ></div>
     </div>
 
     <!-- Chevron -->
     <svg
-      class="w-4 h-4 transition-transform {isOpen ? 'rotate-180' : ''}"
+      class="w-4 h-4 transition-transform duration-300 ease-out {isOpen
+        ? 'rotate-180'
+        : ''}"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -121,15 +135,20 @@
   <!-- Dropdown Menu -->
   {#if isOpen}
     <div
-      class="absolute right-0 mt-2 w-64 backdrop-blur-2xl rounded-xl shadow-2xl overflow-hidden z-50 border border-white/20"
+      class="absolute right-0 mt-2 w-64 glass-effect-dropdown rounded-xl shadow-2xl overflow-hidden z-50"
       role="menu"
       aria-orientation="vertical"
+      in:fly={{ y: -10, duration: 300, easing: quintOut }}
+      out:fly={{ y: -10, duration: 200, easing: quintOut }}
     >
       <!-- User Info -->
-      <div class="p-4 border-b border-white/10">
+      <div
+        class="p-4 border-b border-white/10"
+        in:fade={{ delay: 100, duration: 200 }}
+      >
         <div class="flex items-center gap-3">
           <div
-            class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-lg font-bold"
+            class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-lg font-bold transform transition-transform duration-200 ease-out hover:scale-110"
           >
             {$currentUser?.username?.charAt(0).toUpperCase() || "?"}
           </div>
@@ -143,15 +162,18 @@
       </div>
 
       <!-- JWT Status -->
-      <div class="p-2">
+      <div class="p-2" in:fade={{ delay: 150, duration: 200 }}>
         <button
           on:click={handleUpdateJWT}
-          class="w-full p-3 rounded-lg {statusConfig.color} border hover:opacity-80 transition-opacity text-left"
+          class="w-full p-3 rounded-lg {statusConfig.color} border hover:opacity-80 transition-all duration-200 ease-out text-left transform hover:scale-[1.02] active:scale-[0.98]"
           role="menuitem"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <span class="text-lg font-bold">{statusConfig.icon}</span>
+              <span
+                class="text-lg font-bold transition-transform duration-200 ease-out"
+                >{statusConfig.icon}</span
+              >
               <div>
                 <p class="font-medium text-sm">{statusConfig.text}</p>
                 {#if $currentUser?.jwtExpiresAt && jwtStatus === "valid"}
@@ -166,7 +188,7 @@
               </div>
             </div>
             <svg
-              class="w-4 h-4"
+              class="w-4 h-4 transition-transform duration-200 ease-out group-hover:translate-x-1"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -182,15 +204,50 @@
         </button>
       </div>
 
+      <!-- Profile Settings -->
+      <div class="p-2" in:fade={{ delay: 200, duration: 200 }}>
+        <button
+          on:click={handleUpdateProfile}
+          class="w-full p-3 rounded-lg hover:bg-white/10 transition-all duration-200 ease-out text-left flex items-center gap-3 transform hover:scale-[1.02] active:scale-[0.98] group"
+          role="menuitem"
+        >
+          <User
+            class="w-5 h-5 text-gray-400 transition-colors duration-200 ease-out group-hover:text-purple-400"
+          />
+          <div class="flex-1">
+            <p class="font-medium text-sm">Profil</p>
+            <p class="text-xs text-gray-400">
+              Modifier nom d'utilisateur et mot de passe
+            </p>
+          </div>
+          <svg
+            class="w-4 h-4 text-gray-400 transition-all duration-200 ease-out group-hover:translate-x-1 group-hover:text-purple-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </button>
+      </div>
+
       <!-- Actions -->
-      <div class="p-2 border-t border-white/10">
+      <div
+        class="p-2 border-t border-white/10"
+        in:fade={{ delay: 250, duration: 200 }}
+      >
         <button
           on:click={handleLogout}
-          class="w-full p-3 rounded-lg hover:bg-red-500/10 transition-colors text-left text-red-400 flex items-center gap-3"
+          class="w-full p-3 rounded-lg hover:bg-red-500/10 transition-all duration-200 ease-out text-left text-red-400 flex items-center gap-3 transform hover:scale-[1.02] active:scale-[0.98] group"
           role="menuitem"
         >
           <svg
-            class="w-5 h-5"
+            class="w-5 h-5 transition-transform duration-200 ease-out group-hover:rotate-12"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

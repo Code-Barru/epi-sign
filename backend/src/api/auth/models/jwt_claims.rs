@@ -6,7 +6,6 @@ use crate::api::users::User;
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct JwtClaims {
     pub sub: Ulid,
-    pub name: String,
     pub iat: usize,
     pub exp: usize,
 }
@@ -47,7 +46,6 @@ impl From<User> for JwtClaims {
 
         Self {
             sub: ulid,
-            name: user.username,
             iat: chrono::Local::now().timestamp() as usize,
             exp: (chrono::Local::now() + chrono::Duration::days(1)).timestamp() as usize,
         }

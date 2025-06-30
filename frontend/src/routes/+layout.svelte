@@ -4,8 +4,10 @@
   import { isAuthenticated, currentUser } from "$lib/stores";
   import ProfileMenu from "$lib/components/ProfileMenu.svelte";
   import JWTUpdater from "$lib/components/JWTUpdater.svelte";
+  import ProfileUpdater from "$lib/components/ProfileUpdater.svelte";
 
   let showJWTUpdater = false;
+  let showProfileUpdater = false;
   let isMobile = false;
 
   // Détecter si on est sur mobile
@@ -17,6 +19,14 @@
 
   function handleCloseJWTUpdater() {
     showJWTUpdater = false;
+  }
+
+  function handleUpdateProfile() {
+    showProfileUpdater = true;
+  }
+
+  function handleCloseProfileUpdater() {
+    showProfileUpdater = false;
   }
 </script>
 
@@ -37,14 +47,18 @@
   <!-- Navbar -->
   {#if $isAuthenticated && $page.url.pathname !== "/login" && $page.url.pathname !== "/register"}
     <nav
-      class="glass-effect border-b border-white/10 sticky top-0 z-50 safe-top"
+      class="glass-effect-navbar border-b border-gray-700/50 sm:border-white/10 sticky top-0 z-50 safe-top"
     >
       <div class="px-4 py-3 sm:px-6 sm:py-4">
         <div class="flex justify-between items-center">
           <h1 class="text-xl sm:text-2xl font-bold gradient-text">EpiSign</h1>
 
           <!-- Profile Menu -->
-          <ProfileMenu {isMobile} on:updateJWT={handleUpdateJWT} />
+          <ProfileMenu
+            {isMobile}
+            on:updateJWT={handleUpdateJWT}
+            on:updateProfile={handleUpdateProfile}
+          />
         </div>
       </div>
     </nav>
@@ -58,3 +72,9 @@
 
 <!-- JWT Updater Modal -->
 <JWTUpdater isOpen={showJWTUpdater} on:close={handleCloseJWTUpdater} />
+
+<!-- Profile Updater Modal -->
+<ProfileUpdater
+  isOpen={showProfileUpdater}
+  on:close={handleCloseProfileUpdater}
+/>

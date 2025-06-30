@@ -17,3 +17,8 @@ diesel::table! {
         jwt_expires_at -> Nullable<Timestamp>,
     }
 }
+
+diesel::allow_tables_to_appear_in_same_query!(
+    cookies,
+    users,
+);

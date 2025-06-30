@@ -4,11 +4,12 @@ import type {
     LoginPayload, 
     RegisterPayload, 
     SignPayload, 
-    SignResponse, 
     PublicUserResponse,
     ApiError,
     User, 
-    JwtPayload
+    JwtPayload,
+    UserSignResponse,
+    UpdateUserPayload
 } from './types';
 
 const API_BASE = '/api';
@@ -100,13 +101,22 @@ export async function loadUsers(): Promise<PublicUserResponse[]> {
     return await apiCall<PublicUserResponse[]>('/users');
 }
 
-export async function signUsers(ulids: string[], url: string): Promise<SignResponse> {
+export async function signUsers(ulids: string[], url: string): Promise<UserSignResponse[]> {
     const payload: SignPayload = { ulids, url };
     
-    return await apiCall<SignResponse>('/sign', {
+    return await apiCall<UserSignResponse[]>('/sign', {
         method: 'POST',
         body: JSON.stringify(payload)
     });
+}
+
+export async function updateUserProfile(payload: UpdateUserPayload): Promise<void> {
+    const user: User = await apiCall<User>('/users/me', {
+        method: 'PATCH',
+        body: JSON.stringify(payload)
+    });
+
+    currentUser.set(user);
 }
 
 // Fonction pour vérifier l'état de l'authentification

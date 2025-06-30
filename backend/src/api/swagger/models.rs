@@ -11,7 +11,8 @@ use utoipa::OpenApi;
         auth::endpoints::logout,
         users::endpoints::get_me,
         users::endpoints::get_users,
-        users::endpoints::update_jwt, 
+        users::endpoints::update_jwt,
+        users::endpoints::update_user,
         sign::endpoints::sign,
         sign::endpoints::status
     ),

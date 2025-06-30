@@ -5,7 +5,7 @@ use tracing::{error, info};
 use crate::{
     api::{
         sign::{
-            models::{SignPayload, SignResponse},
+            models::{SignPayload, UserSignResponse},
             services::{check_cookie_exists, get_cookies, sign_fn},
         },
         users::get_users_by_ulids,
@@ -19,7 +19,7 @@ use crate::{
     description = "Sign cookies for the provided ULIDs and URL",
     request_body = SignPayload,
     responses(
-        (status = 200, description = "Cookies signed successfully", body = SignResponse),
+        (status = 200, description = "Cookies signed successfully", body = Vec<UserSignResponse>),
         (status = 400, description = "No users found for the provided ULIDs"),
         (status = 401, description = "Unauthorized - Invalid or missing JWT token"),
         (status = 404, description = "No cookies found for today"),

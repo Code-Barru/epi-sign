@@ -5,8 +5,6 @@
   export let signUrl: string;
   export let selectedUsers: Set<string>;
   export let signing: boolean;
-  export let selectAll: boolean;
-  export let usersCount: number;
   export let isMobile: boolean = false;
 
   const dispatch = createEventDispatcher();
@@ -26,7 +24,7 @@
 </script>
 
 <div
-  class="top-16 sm:top-20 z-40 -qmx-4 px-4 sm:mx-0 sm:px-0 py-4 glass-effect sm:glass-effect-none backdrop-blur-2xl sm:backdrop-blur-none mb-6"
+  class="top-16 sm:top-20 z-40 -mx-1 px-4 py-4 rounded-xl bg-gray-900/95 border-b border-gray-700/50 sm:glass-effect-navbar sm:backdrop-blur-2xl sm:border-white/10 mb-6"
 >
   <div class="space-y-4">
     <div>
@@ -45,7 +43,7 @@
         {#if isMobile}
           <button
             on:click={handleScanRequest}
-            class="cursor-pointer px-4 bg-white/10 rounded-xl justify-center align-center"
+            class="cursor-pointer px-4 bg-gray-700/80 hover:bg-gray-700/90 sm:bg-white/10 sm:hover:bg-white/20 rounded-xl justify-center align-center transition-all duration-200 ease-out transform hover:scale-105 active:scale-95"
             title="Scanner QR Code"
             aria-label="Scanner QR Code"
           >
