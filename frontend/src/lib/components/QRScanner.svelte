@@ -5,6 +5,7 @@
 
   export let onScan: (result: string) => void;
   export let onClose: () => void;
+  export let onError: (error: string) => void;
 
   let scanner: Html5Qrcode | null = null;
   let scannerElement: HTMLElement;
@@ -38,6 +39,9 @@
       await requestCameraAccess();
     } catch (error) {
       console.error("Erreur lors de la vérification des permissions:", error);
+      onError(
+        "Erreur lors de la vérification des permissions. Veuillez réessayer."
+      );
     } finally {
       isChecking = false;
     }
@@ -67,6 +71,9 @@
       }, 500);
     } catch (error) {
       console.error("Erreur d'accès caméra:", error);
+      onError(
+        "Erreur lors de la vérification des permissions. Veuillez réessayer."
+      );
       if (error instanceof Error) {
         if (
           error.name === "NotAllowedError" ||

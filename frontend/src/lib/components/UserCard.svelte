@@ -33,7 +33,7 @@
 
 <label
   for="user-{user.id}"
-  class="block glass-effect-card rounded-xl p-4 user-card {!user.jwtIsExpired
+  class="block glass-effect-card rounded-xl p-4 user-card-subtle {!user.jwtIsExpired
     ? 'cursor-pointer'
     : 'cursor-not-allowed opacity-50'} 
     {isSelected ? 'ring-2 ring-purple-500/50 bg-purple-500/10' : ''}"

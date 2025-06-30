@@ -196,23 +196,35 @@
       <AlertMessage type="success" message={success} />
     {/if}
 
-    <SigningSection
-      {signUrl}
-      {selectedUsers}
-      {signing}
-      {isMobile}
-      on:sign={handleSign}
-      on:toggleSelectAll={handleToggleSelectAll}
-      on:urlChange={handleUrlChange}
-      on:scanRequest={handleScanRequest}
-    />
+    <!-- Layout Mobile : vertical (comme avant) -->
+    <!-- Layout Desktop : horizontal avec SigningSection à gauche (1/4) et UsersList à droite (3/4) -->
+    <div class="flex flex-col sm:flex-row sm:gap-6 sm:h-[calc(100vh-120px)]">
+      <!-- Section de signature - Mobile: pleine largeur, Desktop: 1/4 à gauche -->
+      <div class="sm:w-1/4 sm:flex-shrink-0">
+        <SigningSection
+          {signUrl}
+          {selectedUsers}
+          {signing}
+          {isMobile}
+          on:sign={handleSign}
+          on:toggleSelectAll={handleToggleSelectAll}
+          on:urlChange={handleUrlChange}
+          on:scanRequest={handleScanRequest}
+        />
+      </div>
 
-    <UsersList
-      {users}
-      {selectedUsers}
-      {loading}
-      on:userToggle={handleUserToggle}
-    />
+      <!-- Liste des utilisateurs - Mobile: pleine largeur, Desktop: 3/4 à droite -->
+      <div class="flex-1 sm:overflow-hidden sm:pl-2">
+        <div class="sm:h-full sm:overflow-y-auto sm:overflow-x-hidden">
+          <UsersList
+            {users}
+            {selectedUsers}
+            {loading}
+            on:userToggle={handleUserToggle}
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
