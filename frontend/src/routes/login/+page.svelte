@@ -13,7 +13,7 @@
     const authenticated = await checkAuth();
 
     if (authenticated) {
-      goto("/dashboard");
+      goto("/");
       return;
     }
   });
@@ -24,7 +24,7 @@
 
     try {
       await login(username, password);
-      goto("/dashboard");
+      goto("/");
     } catch (e) {
       const apiError = e as ApiError;
       if (apiError.status === 401) {

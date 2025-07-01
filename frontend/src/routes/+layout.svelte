@@ -5,6 +5,7 @@
   import ProfileMenu from "$lib/components/ProfileMenu.svelte";
   import JWTUpdater from "$lib/components/JWTUpdater.svelte";
   import ProfileUpdater from "$lib/components/ProfileUpdater.svelte";
+  import { goto } from "$app/navigation";
 
   let showJWTUpdater = false;
   let showProfileUpdater = false;
@@ -12,6 +13,9 @@
 
   // Détecter si on est sur mobile
   $: isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+
+  // Pages sans navbar
+  $: hideNavbar = ["/login", "/register", "/home"].includes($page.url.pathname);
 
   function handleUpdateJWT() {
     showJWTUpdater = true;
@@ -27,6 +31,10 @@
 
   function handleCloseProfileUpdater() {
     showProfileUpdater = false;
+  }
+
+  function handleGoingHome() {
+    goto("/");
   }
 </script>
 
@@ -45,13 +53,19 @@
   </div>
 
   <!-- Navbar -->
-  {#if $isAuthenticated && $page.url.pathname !== "/login" && $page.url.pathname !== "/register"}
+  {#if $isAuthenticated && !hideNavbar}
     <nav
       class="glass-effect-navbar border-b border-gray-700/50 sm:border-white/10 sticky top-0 z-50 safe-top"
     >
       <div class="px-4 py-3 sm:px-6 sm:py-4">
         <div class="flex justify-between items-center">
-          <h1 class="text-xl sm:text-2xl font-bold gradient-text">EpiSign</h1>
+          <button
+            class="text-xl sm:text-2xl font-bold gradient-text"
+            onclick={handleGoingHome}
+            aria-label="Aller à l'accueil"
+          >
+            EpiSign
+          </button>
 
           <!-- Profile Menu -->
           <ProfileMenu
