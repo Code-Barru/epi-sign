@@ -291,7 +291,7 @@
 
     <!-- Instructions animées - Desktop uniquement -->
     <div
-      class="hidden sm:block mt-6 sm:mt-0 sm:absolute sm:bottom-6 sm:left-6 sm:right-6"
+      class="hidden mt-6 sm:mt-0 sm:absolute sm:bottom-6 sm:left-6 sm:right-6"
       in:fly={{ y: 30, duration: 400, delay: 400, easing: quintOut }}
     >
       <div class="glass-effect-card rounded-xl p-4 sm:p-6">
