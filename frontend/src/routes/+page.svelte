@@ -6,9 +6,6 @@
   import { fly, scale } from "svelte/transition";
   import { quintOut } from "svelte/easing";
   import { isMobileDevice } from "$lib/utils/device";
-  import type { PageData } from "./$types";
-
-  export let data: PageData;
 
   let isDesktop = false;
 
