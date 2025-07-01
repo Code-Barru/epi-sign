@@ -1,22 +1,13 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { checkAuth, login } from "$lib/api";
+  import { login } from "$lib/api";
   import type { ApiError } from "$lib/types";
-  import { onMount } from "svelte";
+  import type { PageData } from "./$types";
 
   let username: string = "";
   let password: string = "";
   let error: string = "";
   let loading: boolean = false;
-
-  onMount(async () => {
-    const authenticated = await checkAuth();
-
-    if (authenticated) {
-      goto("/");
-      return;
-    }
-  });
 
   async function handleSubmit(): Promise<void> {
     error = "";

@@ -22,8 +22,14 @@ const fetchConfig: RequestInit = {
     }
 };
 
-async function apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const response = await fetch(`${API_BASE}${endpoint}`, {
+async function apiCall<T>(
+    endpoint: string, 
+    options: RequestInit = {},
+    customFetch?: typeof fetch
+): Promise<T> {
+    const fetchFn = customFetch || fetch;
+    
+    const response = await fetchFn(`${API_BASE}${endpoint}`, {
         ...fetchConfig,
         ...options,
         headers: {
@@ -33,12 +39,10 @@ async function apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<
     });
 
     if (!response.ok) {
-        // Si 401, déconnecter l'utilisateur
-        if (response.status === 401 && endpoint !== '/auth/login') {
-            if (browser) {
-                isAuthenticated.set(false);
-                currentUser.set(null);
-            }
+        // Si 401, déconnecter l'utilisateur (seulement côté client)
+        if (response.status === 401 && endpoint !== '/auth/login' && browser) {
+            isAuthenticated.set(false);
+            currentUser.set(null);
         }
         
         const error: ApiError = {
@@ -55,89 +59,99 @@ async function apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<
     return await response.text() as T;
 }
 
-export async function login(username: string, password: string): Promise<void> {
+export async function login(username: string, password: string, customFetch?: typeof fetch): Promise<void> {
     const payload: LoginPayload = { username, password };
     
     await apiCall<void>('/auth/login', {
         method: 'POST',
         body: JSON.stringify(payload)
-    });
+    }, customFetch);
     
-    // Récupérer les infos utilisateur après connexion
-    try {
-        const user = await getCurrentUser();
-        isAuthenticated.set(true);
-        currentUser.set(user);
-    } catch {
-        // Si on ne peut pas récupérer l'utilisateur, on considère qu'on est connecté avec les infos minimales
-        isAuthenticated.set(true);
-        currentUser.set({ id: '', username });
+    // Récupérer les infos utilisateur après connexion (seulement côté client)
+    if (browser) {
+        try {
+            const user = await getCurrentUser(customFetch);
+            isAuthenticated.set(true);
+            currentUser.set(user);
+        } catch {
+            // Si on ne peut pas récupérer l'utilisateur, on considère qu'on est connecté avec les infos minimales
+            isAuthenticated.set(true);
+            currentUser.set({ id: '', username });
+        }
     }
 }
 
-export async function register(username: string, password: string): Promise<void> {
+export async function register(username: string, password: string, customFetch?: typeof fetch): Promise<void> {
     const payload: RegisterPayload = { username, password };
     
     await apiCall<void>('/auth/register', {
         method: 'POST',
         body: JSON.stringify(payload)
-    });
+    }, customFetch);
 }
 
-export async function logout(): Promise<void> {
+export async function logout(customFetch?: typeof fetch): Promise<void> {
     try {
-        await apiCall<void>('/auth/logout', { method: 'POST' });
+        await apiCall<void>('/auth/logout', { method: 'POST' }, customFetch);
     } finally {
-        isAuthenticated.set(false);
-        currentUser.set(null);
+        if (browser) {
+            isAuthenticated.set(false);
+            currentUser.set(null);
+        }
     }
 }
 
-export async function getCurrentUser(): Promise<User> {
-    return await apiCall<User>('/users/me');
+export async function getCurrentUser(customFetch?: typeof fetch): Promise<User> {
+    return await apiCall<User>('/users/me', {}, customFetch);
 }
 
-export async function loadUsers(): Promise<PublicUserResponse[]> {
-    return await apiCall<PublicUserResponse[]>('/users');
+export async function loadUsers(customFetch?: typeof fetch): Promise<PublicUserResponse[]> {
+    return await apiCall<PublicUserResponse[]>('/users', {}, customFetch);
 }
 
-export async function signUsers(ulids: string[], url: string): Promise<UserSignResponse[]> {
+export async function signUsers(ulids: string[], url: string, customFetch?: typeof fetch): Promise<UserSignResponse[]> {
     const payload: SignPayload = { ulids, url };
     
     return await apiCall<UserSignResponse[]>('/sign', {
         method: 'POST',
         body: JSON.stringify(payload)
-    });
+    }, customFetch);
 }
 
-export async function updateUserProfile(payload: UpdateUserPayload): Promise<void> {
+export async function updateUserProfile(payload: UpdateUserPayload, customFetch?: typeof fetch): Promise<void> {
     const user: User = await apiCall<User>('/users/me', {
         method: 'PATCH',
         body: JSON.stringify(payload)
-    });
+    }, customFetch);
 
-    currentUser.set(user);
+    if (browser) {
+        currentUser.set(user);
+    }
 }
 
 // Fonction pour vérifier l'état de l'authentification
-export async function checkAuth(): Promise<boolean> {
+export async function checkAuth(customFetch?: typeof fetch): Promise<boolean> {
     try {
-        const user = await getCurrentUser();
-        isAuthenticated.set(true);
-        currentUser.set(user);
+        const user = await getCurrentUser(customFetch);
+        if (browser) {
+            isAuthenticated.set(true);
+            currentUser.set(user);
+        }
         return true;
     } catch {
-        isAuthenticated.set(false);
-        currentUser.set(null);
+        if (browser) {
+            isAuthenticated.set(false);
+            currentUser.set(null);
+        }
         return false;
     }
 }
 
-export async function updateUserJWT(jwt: string): Promise<void> {
+export async function updateUserJWT(jwt: string, customFetch?: typeof fetch): Promise<void> {
     const payload: JwtPayload = { jwt };
     
     await apiCall<void>('/users/me/update-jwt', {
         method: 'POST',
         body: JSON.stringify(payload)
-    });
+    }, customFetch);
 }

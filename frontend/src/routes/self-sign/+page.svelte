@@ -1,38 +1,29 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { goto } from "$app/navigation";
-  import { signUsers, checkAuth } from "$lib/api";
-  import { currentUser, isAuthenticated } from "$lib/stores";
+  import { signUsers } from "$lib/api";
+  import { currentUser } from "$lib/stores";
   import { isMobileDevice } from "$lib/utils/device";
   import type { ApiError, UserSignResponse } from "$lib/types";
   import QRScanner from "$lib/components/QRScanner.svelte";
   import SignResults from "$lib/components/SignResults.svelte";
   import AlertMessage from "$lib/components/AlertMessage.svelte";
-  import { ScanQrCode, Home, ArrowLeft } from "@lucide/svelte";
+  import { ScanQrCode, ArrowLeft } from "@lucide/svelte";
   import { fly, scale } from "svelte/transition";
   import { quintOut } from "svelte/easing";
+  import type { PageData } from "./$types";
+  import { goto } from "$app/navigation";
 
   let showScanner = false;
   let error = "";
   let success = "";
-  let loading = false;
   let signing = false;
   let showResults = false;
   let signResults: UserSignResponse[] = [];
   let isMobile = false;
 
-  onMount(async () => {
+  onMount(() => {
     // Vérifier si on est sur mobile
     isMobile = isMobileDevice();
-
-    // Vérifier l'authentification
-    const authenticated = await checkAuth();
-    if (!authenticated) {
-      goto("/login");
-      return;
-    }
-
-    loading = false;
   });
 
   function handleScanRequest() {
@@ -106,7 +97,7 @@
   }
 
   function goBack() {
-    history.back();
+    goto("/");
   }
 
   // Vérifier le statut JWT de l'utilisateur actuel

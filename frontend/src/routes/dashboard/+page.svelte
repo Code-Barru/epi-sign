@@ -1,93 +1,41 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { loadUsers, signUsers, checkAuth } from "$lib/api";
-  import { goto } from "$app/navigation";
+  import { signUsers } from "$lib/api";
   import { isMobileDevice } from "$lib/utils/device";
   import type {
     PublicUserResponse,
     ApiError,
     UserSignResponse,
+    DashboardPageData,
   } from "$lib/types";
   import AlertMessage from "$lib/components/AlertMessage.svelte";
   import SigningSection from "$lib/components/SigningSection.svelte";
   import UsersList from "$lib/components/UsersList.svelte";
   import QRScanner from "$lib/components/QRScanner.svelte";
   import SignResults from "$lib/components/SignResults.svelte";
-  import { currentUser } from "$lib/stores";
-  import { ArrowLeft, Home, HelpCircle } from "@lucide/svelte";
+  import { ArrowLeft, HelpCircle } from "@lucide/svelte";
   import { fly, scale, fade } from "svelte/transition";
   import { quintOut } from "svelte/easing";
+  import { goto } from "$app/navigation";
 
-  let users: PublicUserResponse[] = [];
+  export let data: DashboardPageData;
+
+  let users: PublicUserResponse[] = data.users || [];
   let selectedUsers = new Set<string>();
   let signUrl: string = "";
-  let error: string = "";
+  let error: string = data.error || "";
   let success: string = "";
-  let loading: boolean = false;
   let signing: boolean = false;
   let selectAll: boolean = false;
   let showScanner: boolean = false;
   let isMobile: boolean = false;
   let showResults: boolean = false;
   let signResults: UserSignResponse[] = [];
-  let showJWTUpdater = false;
-  let showProfileUpdater = false;
   let showGuideModal = false;
 
-  onMount(async () => {
+  onMount(() => {
     // Vérifier si on est sur mobile
     isMobile = isMobileDevice();
-
-    // Vérifier l'authentification d'abord
-    const authenticated = await checkAuth();
-
-    if (!authenticated) {
-      goto("/login");
-      return;
-    }
-
-    loading = true;
-    try {
-      const loadedUsers = await loadUsers();
-
-      // Marquer les utilisateurs avec JWT expiré
-      loadedUsers.forEach((user) => {
-        user.jwtIsExpired =
-          user.jwtExpiresAt === undefined ||
-          user.jwtExpiresAt === null ||
-          new Date(user.jwtExpiresAt) < new Date();
-      });
-
-      // Trier les utilisateurs :
-      // 1. Utilisateur actuel en premier
-      // 2. Par validité de token (valides avant expirés)
-      // 3. Par ULID
-      users = loadedUsers.sort((a, b) => {
-        // 1. Utilisateur actuel en premier
-        const aIsCurrent = $currentUser?.id === a.id;
-        const bIsCurrent = $currentUser?.id === b.id;
-
-        if (aIsCurrent && !bIsCurrent) return -1;
-        if (!aIsCurrent && bIsCurrent) return 1;
-
-        // 2. Trier par validité de token (valides en premier)
-        if (a.jwtIsExpired !== b.jwtIsExpired) {
-          return a.jwtIsExpired ? 1 : -1;
-        }
-
-        // 3. Trier par ULID
-        return a.id.localeCompare(b.id);
-      });
-    } catch (e) {
-      const apiError = e as ApiError;
-      if (apiError.status === 401) {
-        goto("/login");
-      } else {
-        error = "Impossible de charger les utilisateurs";
-      }
-    } finally {
-      loading = false;
-    }
   });
 
   async function handleSign(): Promise<void> {
@@ -192,7 +140,7 @@
   }
 
   function goBack() {
-    history.back();
+    goto("/");
   }
 
   function openGuideModal() {
@@ -282,7 +230,7 @@
           <UsersList
             {users}
             {selectedUsers}
-            {loading}
+            loading={false}
             on:userToggle={handleUserToggle}
           />
         </div>

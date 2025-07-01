@@ -54,3 +54,13 @@ export interface UpdateUserPayload {
     old_password?: string | null;
     new_password?: string | null;
 }
+
+export interface DashboardPageData {
+    users: PublicUserResponse[];
+    error?: string;
+}
+
+export interface LoginPageData {}
+export interface RegisterPageData {}
+export interface IndexPageData {}
+export interface SelfSignPageData {}
