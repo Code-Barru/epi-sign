@@ -2,7 +2,7 @@
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
   import { currentUser } from "$lib/stores";
-  import { User, Users } from "@lucide/svelte";
+  import { User, Users, MapPin } from "@lucide/svelte";
   import { fly, scale } from "svelte/transition";
   import { quintOut } from "svelte/easing";
   import { isMobileDevice } from "$lib/utils/device";
@@ -30,6 +30,10 @@
 
   function goToDashboard() {
     goto("/dashboard");
+  }
+
+  function goToRoadmap() {
+    goto("/roadmap");
   }
 </script>
 
@@ -178,55 +182,55 @@
       </div>
     </div>
 
-    <!-- Info utilisateur -->
+    <!-- Bouton Roadmap -->
     <div
-      class="mt-8 sm:mt-12 text-center"
-      in:fly={{ y: 30, duration: 600, delay: 500, easing: quintOut }}
+      class="mt-6 sm:mt-8 text-center"
+      in:scale={{ duration: 500, delay: 600, easing: quintOut, start: 0.9 }}
     >
-      <div class="glass-effect-card rounded-xl p-4 sm:p-6">
-        <div class="flex items-center justify-center gap-3 mb-3">
-          <div
-            class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-sm font-bold"
-          >
-            {$currentUser?.username?.charAt(0).toUpperCase() || "?"}
-          </div>
-          <span class="font-medium text-gray-300">
-            {$currentUser?.username || "Utilisateur"}
-          </span>
-        </div>
-
-        {#if $currentUser?.jwtExpiresAt}
-          {@const expiresAt = new Date($currentUser.jwtExpiresAt)}
-          {@const isExpired = expiresAt < new Date()}
-          <div class="flex items-center justify-center gap-2 text-sm">
+      <button
+        on:click={goToRoadmap}
+        class="w-full glass-effect-card rounded-xl p-4 sm:p-5 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 ease-out group"
+      >
+        <div class="flex items-center justify-center gap-3">
+          <div class="flex-shrink-0">
             <div
-              class="w-2 h-2 rounded-full {isExpired
-                ? 'bg-red-400'
-                : 'bg-green-400'} animate-pulse"
-            ></div>
-            <span class={isExpired ? "text-red-400" : "text-green-400"}>
-              JWT {isExpired ? "expiré" : "valide"}
-              {#if !isExpired}
-                jusqu'au {expiresAt.toLocaleDateString()}
-              {/if}
-            </span>
+              class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200 ease-out"
+            >
+              <MapPin class="w-5 h-5 text-white" />
+            </div>
           </div>
-        {:else}
-          <div
-            class="flex items-center justify-center gap-2 text-sm text-yellow-400"
-          >
-            <div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-            <span>JWT manquant - Configurez votre token</span>
+          <div class="flex-1 text-left">
+            <h4 class="font-semibold text-white text-sm sm:text-base">
+              Découvrir les prochaines fonctionnalités
+            </h4>
+            <p class="text-xs sm:text-sm text-gray-400 mt-1">
+              Roadmap et nouvelles features à venir
+            </p>
           </div>
-        {/if}
-      </div>
+          <div class="flex-shrink-0">
+            <svg
+              class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all duration-200 ease-out"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </div>
+        </div>
+      </button>
     </div>
 
     <!-- Message informatif pour desktop -->
     {#if isDesktop}
       <div
         class="mt-6 text-center"
-        in:fly={{ y: 20, duration: 400, delay: 600, easing: quintOut }}
+        in:fly={{ y: 20, duration: 400, delay: 700, easing: quintOut }}
       >
         <div
           class="glass-effect-card rounded-xl p-4 border border-blue-500/30 bg-blue-500/5"

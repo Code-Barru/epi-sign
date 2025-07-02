@@ -9,17 +9,14 @@ const config = {
         adapter: adapter({
             pages: 'build',
             assets: 'build',
-            fallback: null,
-            precompress: false    
+            fallback: 'index.html',
+            precompress: false,
+            strict: false
         }),
         serviceWorker: {
             register: true
         }
-    },
-    prerender: {
-      default: true
     }
-    
 };
 
 export default config;
