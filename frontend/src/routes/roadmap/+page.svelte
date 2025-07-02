@@ -46,6 +46,14 @@
       category: "Features",
     },
     {
+      title: "Photo de profil",
+      description:
+        "Ajouter la possibilité de mettre une photo de profil pour chaque utilisateur",
+      status: "planned",
+      priority: "low",
+      category: "Features",
+    },
+    {
       title: "Récupération automatique du JWT",
       description: "",
       status: "planned",
