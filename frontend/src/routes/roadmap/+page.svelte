@@ -41,7 +41,7 @@
       title: "Réserver un créneau pour signer",
       description:
         "Permettre de réserver un créneau de session pour être afficher en prioritaire dans la liste des utilisateurs",
-      status: "planned",
+      status: "in-progress",
       priority: "high",
       category: "Features",
     },
@@ -55,7 +55,8 @@
     },
     {
       title: "Récupération automatique du JWT",
-      description: "",
+      description:
+        "Permettre de renseigner ses identifiants Microsoft et qu'Epi-sign récupère automatiquement le JWT pour éviter de devoir le renseigner toutes les semaines",
       status: "planned",
       priority: "medium",
       category: "Features",
