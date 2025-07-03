@@ -69,6 +69,14 @@
       priority: "medium",
       category: "Security",
     },
+    {
+      title: "Update en temps réel",
+      description:
+        "Avoir les updates utilisateurs en temps réel pour voir qui a signé etc",
+      status: "in-progress",
+      priority: "medium",
+      category: "QoL",
+    },
   ];
 
   function goBack() {
